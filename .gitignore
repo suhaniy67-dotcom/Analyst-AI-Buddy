@@ -1,0 +1,37 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Uploaded/private data
+uploads/
+data/raw data/*
+*.csv
+*.xlsx
+*.xls
+
+# Generated reports
+reports/*
+outputs/reports/*
+outputs/graphs/*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

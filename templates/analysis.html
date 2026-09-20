@@ -1,47 +1,1075 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-<title>Analysis</title>
+    <meta charset="UTF-8">
 
-<link rel="stylesheet"
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-href="{{ url_for('static', filename='css/style.css') }}">
+    <title>AnalystBuddyAI - Data Analysis</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+    <style>
+        .recommendation-card {
+
+    background: white;
+
+    border: 1px solid #ddd;
+
+    border-radius: 12px;
+
+    padding: 22px;
+
+    margin-bottom: 18px;
+
+    box-shadow:
+        0 3px 10px
+        rgba(0,0,0,0.06);
+
+}
+
+
+.recommendation-title {
+
+    font-size: 20px;
+
+    font-weight: bold;
+
+    color: #2563eb;
+
+    margin-bottom: 20px;
+
+}
+
+
+.recommendation-row {
+
+    margin: 14px 0;
+
+    padding: 10px;
+
+    background: #f8fafc;
+
+    border-radius: 7px;
+
+}
+
+
+.recommendation-row strong {
+
+    display: inline-block;
+
+    width: 100px;
+
+}
+
+
+.recommendation-reason {
+
+    margin-top: 18px;
+
+    padding: 15px;
+
+    background: #eff6ff;
+
+    border-radius: 8px;
+
+}
+
+
+.recommendation-reason p {
+
+    margin-bottom: 0;
+
+    line-height: 1.6;
+
+}
+
+
+.error-message {
+
+    background: #fef2f2;
+
+    color: #b91c1c;
+
+    border-left: 5px solid #dc2626;
+
+    padding: 18px;
+
+    border-radius: 8px;
+
+}
+
+
+.empty-message {
+
+    background: #f8fafc;
+
+    padding: 18px;
+
+    border-radius: 8px;
+
+    color: #6b7280;
+
+}
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        .header {
+            background: #111827;
+            color: white;
+            padding: 25px 40px;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .header p {
+            margin-bottom: 0;
+            color: #d1d5db;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1400px;
+            margin: 30px auto;
+        }
+
+        .back {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 7px;
+            margin-bottom: 20px;
+        }
+
+        .back:hover {
+            background: #1d4ed8;
+        }
+
+        .dataset-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .dataset-card h2 {
+            margin-top: 0;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .kpi h3 {
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .kpi-number {
+            font-size: 30px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        }
+
+        .section h2 {
+            margin-top: 0;
+        }
+
+        /* ================================
+           AI INSIGHTS
+        ================================= */
+
+        .ai-box {
+            background: #eff6ff;
+            border-left: 5px solid #2563eb;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            line-height: 1.7;
+        }
+
+        /* ================================
+           CLEANING
+        ================================= */
+
+        .cleaning-box {
+            background: #f0fdf4;
+            border-left: 5px solid #16a34a;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            line-height: 1.7;
+        }
+
+        /* ================================
+           CHART RECOMMENDATIONS
+        ================================= */
+
+        .recommendation-container {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .recommendation-card {
+            background: #f5f3ff;
+            border: 1px solid #ddd6fe;
+            border-left: 5px solid #7c3aed;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        .recommendation-card h3 {
+            color: #5b21b6;
+            margin-top: 0;
+            margin-bottom: 18px;
+        }
+
+        .recommendation-item {
+            margin-bottom: 12px;
+        }
+
+        .recommendation-label {
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .recommendation-value {
+            color: #111827;
+            margin-top: 4px;
+        }
+
+        .reason-box {
+            background: white;
+            padding: 12px;
+            border-radius: 7px;
+            margin-top: 15px;
+            line-height: 1.5;
+        }
+
+        .loading {
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .error-box {
+            background: #fef2f2;
+            border-left: 5px solid #dc2626;
+            padding: 15px;
+            border-radius: 8px;
+            color: #991b1b;
+        }
+
+        .no-recommendations {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            color: #6b7280;
+        }
+
+        /* ================================
+           AUTOMATIC CHARTS
+        ================================= */
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+        }
+
+        .chart-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        .chart-card h3 {
+            margin-left: 10px;
+        }
+
+        /* ================================
+           COLUMN LIST
+        ================================= */
+
+        .columns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .column {
+            padding: 8px 14px;
+            background: #e5e7eb;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        /* ================================
+           NAVIGATION BUTTONS
+        ================================= */
+
+        .navigation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .nav-button {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            padding: 11px 18px;
+            border-radius: 7px;
+        }
+
+        .nav-button:hover {
+            background: #1d4ed8;
+        }
+
+        .nav-button.green {
+            background: #16a34a;
+        }
+
+        .nav-button.purple {
+            background: #7c3aed;
+        }
+
+        .nav-button.orange {
+            background: #ea580c;
+        }
+
+        @media(max-width:1400px) {
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .recommendation-container {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
+
 <body>
 
-<h1>Dataset Analysis</h1>
 
-<table>
+<!-- =========================================
+     HEADER
+========================================= -->
 
-<tr>
+<div class="header">
 
-<th>Rows</th>
+    <h1>
+        🤖 AnalystBuddyAI
+    </h1>
 
-<th>Columns</th>
+    <p>
+        AI-Powered Data Analysis & Visualization
+    </p>
 
-<th>Missing Values</th>
+</div>
 
-<th>Duplicates</th>
 
-</tr>
+<div class="container">
 
-<tr>
 
-<td>500</td>
+    <!-- =========================================
+         NAVIGATION
+    ========================================== -->
 
-<td>10</td>
+    <div class="navigation">
 
-<td>5</td>
+        <a href="/upload"
+           class="nav-button">
 
-<td>2</td>
+            ← Upload Another Dataset
 
-</tr>
+        </a>
 
-</table>
+
+        <a href="/prediction"
+           class="nav-button green">
+
+            📈 Sales Prediction
+
+        </a>
+
+
+        <a href="/segmentation"
+           class="nav-button purple">
+
+            👥 Customer Segmentation
+
+        </a>
+
+
+        <a href="/reports"
+           class="nav-button orange">
+
+            📄 Reports
+
+        </a>
+
+    </div>
+
+
+    <!-- =========================================
+         DATASET INFORMATION
+    ========================================== -->
+
+    <div class="dataset-card">
+
+        <h2>
+            📁 {{ filename }}
+        </h2>
+
+        <p>
+            Your dataset has been analyzed automatically.
+        </p>
+
+
+        {% if cleaned_filename %}
+
+        <a
+            href="{{ url_for('download_file',
+                             filename=cleaned_filename) }}"
+            style="
+                display:inline-block;
+                background:#16a34a;
+                color:white;
+                text-decoration:none;
+                padding:12px 20px;
+                border-radius:8px;
+                font-weight:bold;
+                margin-top:10px;
+            "
+        >
+
+            ⬇️ Download Cleaned Dataset
+
+        </a>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =========================================
+         KPI SECTION
+    ========================================== -->
+
+    <div class="kpi-grid">
+
+
+        <div class="kpi">
+
+            <h3>
+                Total Rows
+            </h3>
+
+            <div class="kpi-number">
+                {{ rows }}
+            </div>
+
+        </div>
+
+
+        <div class="kpi">
+
+            <h3>
+                Total Columns
+            </h3>
+
+            <div class="kpi-number">
+                {{ columns }}
+            </div>
+
+        </div>
+
+
+        <div class="kpi">
+
+            <h3>
+                Missing Values
+            </h3>
+
+            <div class="kpi-number">
+                {{ missing_values }}
+            </div>
+
+        </div>
+
+
+        <div class="kpi">
+
+            <h3>
+                Duplicate Rows
+            </h3>
+
+            <div class="kpi-number">
+                {{ duplicate_rows }}
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =========================================
+         AI DATA CLEANING
+    ========================================== -->
+
+    <div class="section">
+
+        <h2>
+            🧹 AI Data Cleaning Analysis
+        </h2>
+
+        <p>
+            AnalystBuddyAI automatically checks your
+            dataset for common data-quality problems.
+        </p>
+
+        <div class="cleaning-box">
+
+            {{ cleaning_recommendations }}
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         AI INSIGHTS
+    ========================================== -->
+
+    <div class="section">
+
+        <h2>
+            🤖 AI-Generated Insights
+        </h2>
+
+        <p>
+            Gemini analyzes the uploaded dataset and
+            provides useful business insights.
+        </p>
+
+        <div
+            id="ai-insights"
+            class="ai-box"
+        >
+
+            <span class="loading">
+                ⏳ Generating AI insights...
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         AI CHART RECOMMENDATIONS
+    ========================================== -->
+
+    <div class="section">
+
+        <h2>
+            💡 AI-Recommended Visualizations
+        </h2>
+
+        <p>
+            AnalystBuddyAI analyzes your dataset structure
+            and recommends suitable charts.
+        </p>
+
+
+        <div
+            id="chart-recommendations"
+            class="recommendation-container"
+        >
+
+            <div class="loading">
+
+                ⏳ Analyzing dataset and generating
+                chart recommendations...
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         AUTOMATIC VISUALIZATIONS
+    ========================================== -->
+
+    <div class="section">
+
+        <h2>
+            📊 Automatic Visualizations
+        </h2>
+
+        <p>
+            Charts automatically generated from
+            your dataset.
+        </p>
+
+
+        <div class="chart-grid">
+
+
+            {% for chart in charts %}
+
+            <div class="chart-card">
+
+                <h3>
+                    {{ chart.title }}
+                </h3>
+
+                {{ chart.html | safe }}
+
+            </div>
+
+            {% endfor %}
+
+
+            {% if not charts %}
+
+            <div class="no-recommendations">
+
+                Automatic charts will appear here
+                when available.
+
+            </div>
+
+            {% endif %}
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         NUMERIC COLUMNS
+    ========================================== -->
+
+    <div class="section">
+
+        <h2>
+            🔢 Numeric Columns
+        </h2>
+
+
+        <div class="columns">
+
+            {% for column in numeric_columns %}
+
+            <span class="column">
+
+                {{ column }}
+
+            </span>
+
+            {% endfor %}
+
+
+            {% if not numeric_columns %}
+
+            <span class="column">
+                No numeric columns detected
+            </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         CATEGORICAL COLUMNS
+    ========================================== -->
+
+    <div class="section">
+
+        <h2>
+            🔤 Categorical Columns
+        </h2>
+
+
+        <div class="columns">
+
+            {% for column in categorical_columns %}
+
+            <span class="column">
+
+                {{ column }}
+
+            </span>
+
+            {% endfor %}
+
+
+            {% if not categorical_columns %}
+
+            <span class="column">
+                No categorical columns detected
+            </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         DATE COLUMNS
+    ========================================== -->
+
+    <div class="section">
+
+        <h2>
+            📅 Date Columns
+        </h2>
+
+
+        <div class="columns">
+
+            {% for column in date_columns %}
+
+            <span class="column">
+
+                {{ column }}
+
+            </span>
+
+            {% endfor %}
+
+
+            {% if not date_columns %}
+
+            <span class="column">
+                No date columns detected
+            </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- =========================================
+     JAVASCRIPT
+========================================= -->
+
+<script>
+
+
+/* ============================================================
+   LOAD AI INSIGHTS
+   ============================================================ */
+
+async function loadAIInsights() {
+
+    const box = document.getElementById("ai-insights");
+
+    if (!box) {
+        console.error("AI insights container not found.");
+        return;
+    }
+
+    try {
+
+        box.textContent = "⏳ Generating AI insights...";
+
+        const response = await fetch("/api/ai-insights");
+
+        console.log("AI Insights status:", response.status);
+
+        const data = await response.json();
+
+        console.log("AI Insights response:", data);
+
+        if (data.success) {
+
+            box.textContent = data.insights;
+
+        } else {
+
+            box.textContent =
+                "❌ Unable to generate AI insights.\n\n" +
+                (data.message || "Unknown error.");
+
+        }
+
+    } catch (error) {
+
+        console.error("AI Insights Error:", error);
+
+        box.textContent =
+            "❌ Unable to connect to AI service.\n\n" +
+            error.message;
+
+    }
+
+}
+
+
+/* ============================================================
+   LOAD AI CHART RECOMMENDATIONS
+   ============================================================ */
+
+async function loadChartRecommendations() {
+
+    const container =
+        document.getElementById(
+            "chart-recommendations"
+        );
+
+    if (!container) {
+
+        console.error(
+            "Chart recommendation container not found."
+        );
+
+        return;
+    }
+
+    try {
+
+        container.innerHTML =
+            "⏳ Analyzing dataset and generating chart recommendations...";
+
+
+        const response = await fetch(
+            "/api/chart-recommendations"
+        );
+
+
+        console.log(
+            "Chart recommendation status:",
+            response.status
+        );
+
+
+        const data = await response.json();
+
+
+        console.log(
+            "Chart recommendation response:",
+            data
+        );
+
+
+        if (!data.success) {
+
+            container.innerHTML =
+                "<div class='error-message'>" +
+                "❌ Unable to generate chart recommendations.<br><br>" +
+                (data.message || "Unknown error.") +
+                "</div>";
+
+            return;
+        }
+
+
+        const recommendations =
+            data.recommendations;
+
+
+        if (
+            !recommendations ||
+            recommendations.length === 0
+        ) {
+
+            container.innerHTML =
+                "<div class='empty-message'>" +
+                "No suitable chart recommendations were found for this dataset." +
+                "</div>";
+
+            return;
+        }
+
+
+        /* ----------------------------------------------------
+           CREATE RECOMMENDATION CARDS
+           ---------------------------------------------------- */
+
+        let html = "";
+
+
+        recommendations.forEach(
+            function(rec) {
+
+                html += `
+
+                    <div class="recommendation-card">
+
+                        <div class="recommendation-title">
+
+                            📊 ${rec.title || "Recommended Chart"}
+
+                        </div>
+
+
+                        <div class="recommendation-row">
+
+                            <strong>Chart Type:</strong>
+
+                            <span>
+                                ${rec.chart_type || "N/A"}
+                            </span>
+
+                        </div>
+
+
+                        <div class="recommendation-row">
+
+                            <strong>X-axis:</strong>
+
+                            <span>
+                                ${rec.x_column || "N/A"}
+                            </span>
+
+                        </div>
+
+
+                        <div class="recommendation-row">
+
+                            <strong>Y-axis:</strong>
+
+                            <span>
+                                ${rec.y_column || "N/A"}
+                            </span>
+
+                        </div>
+
+
+                        <div class="recommendation-reason">
+
+                            <strong>Why:</strong>
+
+                            <p>
+                                ${rec.reason || "Suitable for this type of data."}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        );
+
+
+        container.innerHTML = html;
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "Chart Recommendation Error:",
+            error
+        );
+
+
+        container.innerHTML =
+
+            "<div class='error-message'>" +
+
+            "❌ Unable to load chart recommendations.<br><br>" +
+
+            error.message +
+
+            "</div>";
+
+    }
+
+}
+
+
+/* ============================================================
+   START API CALLS
+   ============================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        loadAIInsights();
+
+        loadChartRecommendations();
+
+    }
+);
+
+</script>
 
 </body>
 

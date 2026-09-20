@@ -1,40 +1,321 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
 
-<title>Upload Dataset</title>
+    <meta charset="UTF-8">
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Upload Dataset - AnalystBuddyAI</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        .navbar {
+            background: #111827;
+            color: white;
+            padding: 18px 40px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 700px;
+            margin: 70px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            color: #111827;
+        }
+
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .file-box {
+            border: 2px dashed #2196f3;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            background: #f8fbff;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background: #2196f3;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1976d2;
+        }
+
+        button:disabled {
+            background: #90caf9;
+            cursor: not-allowed;
+        }
+
+        .error {
+            background: #ffe5e5;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: #e7f8ed;
+            color: #1b7f3a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f3f4f6;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .result p {
+            margin: 10px 0;
+        }
+
+        .result strong {
+            color: #111827;
+        }
+
+        .file-name {
+            margin-top: 12px;
+            color: #2196f3;
+            font-weight: bold;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 15px;
+            color: #555;
+        }
+
+    </style>
 
 </head>
 
+
 <body>
 
-<div class="container">
+    <div class="navbar">
+        🤖 AnalystBuddyAI
+    </div>
 
-<h2>Upload Dataset</h2>
 
-<form action="/upload"
+    <div class="container">
 
-method="POST"
+        <div class="card">
 
-enctype="multipart/form-data">
+            <h1>Upload Dataset</h1>
 
-<input type="file"
+            <p class="description">
+                Upload a CSV or Excel file for AI-powered analysis.
+            </p>
 
-name="file"
 
-required>
+            {% if error %}
 
-<button>
+                <div class="error">
+                    {{ error }}
+                </div>
 
-Upload
+            {% endif %}
 
-</button>
 
-</form>
+            {% if success %}
 
-</div>
+                <div class="success">
+                    {{ success }}
+                </div>
+
+            {% endif %}
+
+
+            <!-- UPLOAD FORM -->
+
+            <form
+                action="{{ url_for('upload') }}"
+                method="POST"
+                enctype="multipart/form-data"
+                id="uploadForm"
+            >
+
+                <div class="file-box">
+
+                    <label for="file">
+                        <strong>Select CSV or Excel Dataset</strong>
+                    </label>
+
+                    <br><br>
+
+                    <input
+                        type="file"
+                        name="file"
+                        id="file"
+                        accept=".csv,.xlsx,.xls"
+                        required
+                    >
+
+                    <div
+                        id="fileName"
+                        class="file-name"
+                    ></div>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    id="submitButton"
+                >
+                    🚀 Analyze Dataset
+                </button>
+
+                <div
+                    id="loading"
+                    class="loading"
+                >
+                    ⏳ Uploading and analyzing your dataset...
+                </div>
+
+            </form>
+
+
+            <!-- ANALYSIS RESULT -->
+
+            {% if filename %}
+
+                <div class="result">
+
+                    <h3>📊 Dataset Analysis</h3>
+
+                    <p>
+                        <strong>File:</strong>
+                        {{ filename }}
+                    </p>
+
+                    <p>
+                        <strong>Total Rows:</strong>
+                        {{ rows }}
+                    </p>
+
+                    <p>
+                        <strong>Total Columns:</strong>
+                        {{ columns }}
+                    </p>
+
+                    <p>
+                        <strong>Missing Values:</strong>
+                        {{ missing_values }}
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        const fileInput =
+            document.getElementById("file");
+
+        const fileName =
+            document.getElementById("fileName");
+
+        const uploadForm =
+            document.getElementById("uploadForm");
+
+        const submitButton =
+            document.getElementById("submitButton");
+
+        const loading =
+            document.getElementById("loading");
+
+
+        fileInput.addEventListener("change", function () {
+
+            if (this.files.length > 0) {
+
+                fileName.textContent =
+                    "Selected file: " +
+                    this.files[0].name;
+
+            } else {
+
+                fileName.textContent = "";
+
+            }
+
+        });
+
+
+        uploadForm.addEventListener("submit", function () {
+
+            if (fileInput.files.length === 0) {
+                return;
+            }
+
+            submitButton.disabled = true;
+
+            submitButton.textContent =
+                "⏳ Processing...";
+
+            loading.style.display = "block";
+
+        });
+
+    </script>
 
 </body>
 

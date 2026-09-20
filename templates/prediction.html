@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Sales Prediction - AnalystBuddyAI</title>
+
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h1>📈 Sales / Revenue Prediction</h1>
+
+    <p>
+        AnalystBuddyAI predicts future revenue
+        using historical sales trends.
+    </p>
+
+
+    <!-- KPI SECTION -->
+
+    <div class="kpi-container">
+
+        <div class="kpi-card">
+
+            <h3>Last Actual Revenue</h3>
+
+            <h2 id="lastActual">
+                Loading...
+            </h2>
+
+        </div>
+
+
+        <div class="kpi-card">
+
+            <h3>Next Month Prediction</h3>
+
+            <h2 id="nextPrediction">
+                Loading...
+            </h2>
+
+        </div>
+
+
+        <div class="kpi-card">
+
+            <h3>Expected Growth</h3>
+
+            <h2 id="growth">
+                Loading...
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <!-- CHART -->
+
+    <div class="dashboard-card">
+
+        <h2>Historical & Predicted Revenue</h2>
+
+        <div id="predictionChart"
+             style="width:100%; height:500px;">
+        </div>
+
+    </div>
+
+
+    <!-- INFORMATION -->
+
+    <div class="dashboard-card">
+
+        <h2>Prediction Details</h2>
+
+        <p>
+            <strong>Date Column:</strong>
+            <span id="dateColumn">-</span>
+        </p>
+
+        <p>
+            <strong>Revenue Column:</strong>
+            <span id="revenueColumn">-</span>
+        </p>
+
+        <p>
+            <strong>Revenue Calculation:</strong>
+            <span id="revenueSource">-</span>
+        </p>
+
+    </div>
+
+
+    <!-- FORECAST TABLE -->
+
+    <div class="dashboard-card">
+
+        <h2>Future Revenue Forecast</h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Month</th>
+
+                    <th>Predicted Revenue</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="forecastTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <br>
+
+    <a href="{{ url_for('dashboard') }}">
+        ← Back to Dashboard
+    </a>
+
+</div>
+
+
+<script>
+
+async function loadPrediction() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/sales-prediction"
+            );
+
+        const data =
+            await response.json();
+
+
+        if (!data.success) {
+
+            alert(
+                data.message
+            );
+
+            return;
+        }
+
+
+        // ------------------------------------------------
+        // KPI
+        // ------------------------------------------------
+
+        document.getElementById(
+            "lastActual"
+        ).innerText =
+            "₹" +
+            data.last_actual.toLocaleString(
+                "en-IN"
+            );
+
+
+        document.getElementById(
+            "nextPrediction"
+        ).innerText =
+            "₹" +
+            data.next_prediction.toLocaleString(
+                "en-IN"
+            );
+
+
+        document.getElementById(
+            "growth"
+        ).innerText =
+            data.growth.toFixed(2)
+            + "%";
+
+
+        // ------------------------------------------------
+        // DETAILS
+        // ------------------------------------------------
+
+        document.getElementById(
+            "dateColumn"
+        ).innerText =
+            data.date_column;
+
+
+        document.getElementById(
+            "revenueColumn"
+        ).innerText =
+            data.revenue_column;
+
+
+        document.getElementById(
+            "revenueSource"
+        ).innerText =
+            data.revenue_source;
+
+
+        // ------------------------------------------------
+        // CHART
+        // ------------------------------------------------
+
+        const historicalMonths =
+            data.historical.map(
+                item => item.month
+            );
+
+        const historicalRevenue =
+            data.historical.map(
+                item => item.revenue
+            );
+
+
+        const forecastMonths =
+            data.forecast.map(
+                item => item.month
+            );
+
+        const predictedRevenue =
+            data.forecast.map(
+                item =>
+                    item.predicted_revenue
+            );
+
+
+        const historicalTrace = {
+
+            x:
+                historicalMonths,
+
+            y:
+                historicalRevenue,
+
+            mode:
+                "lines+markers",
+
+            name:
+                "Historical Revenue"
+
+        };
+
+
+        const forecastTrace = {
+
+            x:
+                forecastMonths,
+
+            y:
+                predictedRevenue,
+
+            mode:
+                "lines+markers",
+
+            name:
+                "Predicted Revenue",
+
+            line: {
+
+                dash:
+                    "dash"
+
+            }
+
+        };
+
+
+        const layout = {
+
+            title:
+                "Revenue Forecast",
+
+            xaxis: {
+
+                title:
+                    "Month"
+
+            },
+
+            yaxis: {
+
+                title:
+                    "Revenue"
+
+            },
+
+            hovermode:
+                "x unified"
+
+        };
+
+
+        Plotly.newPlot(
+
+            "predictionChart",
+
+            [
+                historicalTrace,
+                forecastTrace
+            ],
+
+            layout,
+
+            {
+                responsive: true
+            }
+
+        );
+
+
+        // ------------------------------------------------
+        // TABLE
+        // ------------------------------------------------
+
+        const table =
+            document.getElementById(
+                "forecastTable"
+            );
+
+        table.innerHTML = "";
+
+
+        data.forecast.forEach(
+            item => {
+
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
+
+                row.innerHTML = `
+
+                    <td>
+                        ${item.month}
+                    </td>
+
+                    <td>
+                        ₹${item.predicted_revenue
+                            .toLocaleString(
+                                "en-IN"
+                            )}
+                    </td>
+
+                `;
+
+                table.appendChild(
+                    row
+                );
+
+            }
+        );
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            error
+        );
+
+        alert(
+            "Unable to load sales prediction."
+        );
+
+    }
+
+}
+
+
+loadPrediction();
+
+</script>
+
+
+</body>
+
+</html>

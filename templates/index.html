@@ -1,28 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analyst Buddy AI</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AnalystBuddyAI</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #eff6ff, #f8fafc);
+            color: #1f2937;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 55px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 46px;
+            margin: 0;
+            color: #111827;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: #6b7280;
+            margin: 15px 0 35px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(200px, 1fr));
+
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+
+        .feature {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+
+            box-shadow:
+                0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .feature-icon {
+            font-size: 30px;
+        }
+
+        .feature-title {
+            margin-top: 8px;
+            font-weight: bold;
+        }
+
+        .start-button {
+            display: inline-block;
+
+            padding: 15px 35px;
+
+            background: #2563eb;
+            color: white;
+
+            text-decoration: none;
+
+            border-radius: 10px;
+
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .start-button:hover {
+            background: #1d4ed8;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        @media(max-width: 600px) {
+
+            h1 {
+                font-size: 34px;
+            }
+
+            .subtitle {
+                font-size: 17px;
+            }
+
+        }
+
+    </style>
+
 </head>
+
+
 <body>
 
-<header>
-    <h1>📊 Analyst Buddy AI</h1>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/login">Login</a>
-        <a href="/register">Register</a>
-    </nav>
-</header>
 
-<div class="hero">
-    <h2>Welcome to Analyst Buddy AI</h2>
-    <p>Upload your datasets, analyze them, generate insights, and create reports.</p>
+<div class="container">
 
-    <a href="/login" class="btn">Get Started</a>
+    <div class="logo">
+        🤖
+    </div>
+
+    <h1>
+        AnalystBuddyAI
+    </h1>
+
+    <div class="subtitle">
+        Your AI-Powered Data Analytics Assistant
+    </div>
+
+
+    <div class="features">
+
+        <div class="feature">
+
+            <div class="feature-icon">
+                📤
+            </div>
+
+            <div class="feature-title">
+                Upload Data
+            </div>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="feature-icon">
+                🧹
+            </div>
+
+            <div class="feature-title">
+                Automatic Cleaning
+            </div>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="feature-icon">
+                📊
+            </div>
+
+            <div class="feature-title">
+                Smart Dashboard
+            </div>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="feature-icon">
+                🤖
+            </div>
+
+            <div class="feature-title">
+                AI Insights
+            </div>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="feature-icon">
+                💡
+            </div>
+
+            <div class="feature-title">
+                Chart Recommendations
+            </div>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="feature-icon">
+                📈
+            </div>
+
+            <div class="feature-title">
+                Automatic Visualizations
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <a href="/login"
+       class="start-button">
+
+        🚀 Get Started
+
+    </a>
+
+
+    <div class="footer">
+
+        Intelligent • Interactive • AI-Powered
+
+    </div>
+
 </div>
 
+
 </body>
-</html> 
+
+</html>

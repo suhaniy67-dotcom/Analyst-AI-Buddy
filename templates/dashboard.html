@@ -1,51 +1,1287 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
 
-<title>Dashboard</title>
+    <meta charset="UTF-8">
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AnalystBuddyAI Dashboard</title>
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        .navbar {
+            background: #111827;
+            color: white;
+            padding: 20px 40px;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        .navbar p {
+            margin: 5px 0 0;
+            color: #d1d5db;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1300px;
+            margin: 30px auto;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 11px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            background: #2563eb;
+            font-weight: bold;
+        }
+
+        .button:hover {
+            background: #1d4ed8;
+        }
+
+        .button.secondary {
+            background: #374151;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(210px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow:
+                0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .kpi-title {
+            color: #6b7280;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            box-shadow:
+                0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            margin-top: 0;
+        }
+
+        .columns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .column {
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+        }
+
+        .chart-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 10px;
+            background: white;
+        }
+
+        .chart-title {
+            padding: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* AI Recommendation Card */
+
+        .recommendation-card {
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            padding: 18px;
+            background: #f8fbff;
+        }
+
+        .recommendation-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #1d4ed8;
+        }
+
+        .recommendation-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .recommendation-tag {
+            background: #e0edff;
+            color: #1e40af;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .recommendation-reason {
+            color: #4b5563;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            padding: 18px;
+            border-radius: 10px;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        @media(max-width: 700px) {
+
+            .container {
+                width: 95%;
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
 
 </head>
 
+
 <body>
 
-<h1>Dashboard</h1>
 
-<div class="cards">
+<div class="navbar">
 
-<div class="card">
+    <h1>🤖 AnalystBuddyAI</h1>
 
-<h2>Total Files</h2>
-
-<h3>10</h3>
-
-</div>
-
-<div class="card">
-
-<h2>Analyses</h2>
-
-<h3>20</h3>
+    <p>
+        Interactive AI-Powered Data Dashboard
+    </p>
 
 </div>
 
-<div class="card">
 
-<h2>Reports</h2>
+<div class="container">
 
-<h3>15</h3>
+
+    <!-- ACTION BUTTONS -->
+
+    <div class="actions">
+
+        <a href="/upload"
+           class="button">
+            📤 Upload Dataset
+        </a>
+
+        <a href="/analysis"
+           class="button secondary">
+            🤖 AI Analysis
+        </a>
+        <a href="{{ url_for('prediction') }}"
+   class="dashboard-button">
+
+            📈 Sales Prediction
+
+        </a>
+        <a href="{{ url_for('segmentation') }}"
+   class="dashboard-button">
+
+    👥 Customer Segmentation
+
+        </a>
+        <a href="{{ url_for('reports') }}" class="btn">
+    📄 Reports
+        </a>
+        <a href="/logout"
+           class="button secondary">
+            Logout
+        </a>
+
+    </div>
+
+
+    <!-- KPI CARDS -->
+
+    <div class="kpi-grid">
+
+
+        <div class="kpi">
+
+            <div class="kpi-title">
+                Total Rows
+            </div>
+
+            <div
+                class="kpi-value"
+                id="rows">
+                --
+            </div>
+
+        </div>
+
+
+        <div class="kpi">
+
+            <div class="kpi-title">
+                Total Columns
+            </div>
+
+            <div
+                class="kpi-value"
+                id="columns">
+                --
+            </div>
+
+        </div>
+
+
+        <div class="kpi">
+
+            <div class="kpi-title">
+                Missing Values
+            </div>
+
+            <div
+                class="kpi-value"
+                id="missing">
+                --
+            </div>
+
+        </div>
+
+
+        <div class="kpi">
+
+            <div class="kpi-title">
+                Duplicate Rows
+            </div>
+
+            <div
+                class="kpi-value"
+                id="duplicates">
+                --
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- NUMERIC COLUMNS -->
+
+    <div class="section">
+
+        <h2>🔢 Numeric Columns</h2>
+
+        <div
+            class="columns"
+            id="numeric-columns">
+
+            <span class="message">
+                Loading...
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- CATEGORICAL COLUMNS -->
+
+    <div class="section">
+
+        <h2>🔤 Categorical Columns</h2>
+
+        <div
+            class="columns"
+            id="categorical-columns">
+
+            <span class="message">
+                Loading...
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- AI RECOMMENDED CHARTS -->
+    <!-- ========================================== -->
+
+    <div class="section">
+
+        <h2>🤖 AI Recommended Charts</h2>
+
+        <p>
+            AnalystBuddyAI recommends the most suitable
+            visualizations based on your dataset.
+        </p>
+
+        <div
+            class="chart-grid"
+            id="recommended-charts">
+
+            <div class="message">
+                Loading AI recommendations...
+            </div>
+
+        </div>
+
+    </div>
+
+<!-- ========================================== -->
+<!-- NATURAL LANGUAGE Q&A -->
+<!-- ========================================== -->
+
+<div class="section">
+
+    <h2>🤖 Ask AnalystBuddyAI</h2>
+
+    <p>
+        Ask questions about your uploaded dataset
+        in natural language.
+    </p>
+
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+
+        <input
+            type="text"
+            id="question"
+            placeholder="Example: What is the total revenue?"
+            style="
+                flex: 1;
+                min-width: 250px;
+                padding: 13px;
+                border: 1px solid #d1d5db;
+                border-radius: 8px;
+                font-size: 15px;
+            "
+        >
+
+        <button
+            onclick="askAI()"
+            style="
+                padding: 13px 22px;
+                border: none;
+                border-radius: 8px;
+                background: #2563eb;
+                color: white;
+                font-weight: bold;
+                cursor: pointer;
+            "
+        >
+            🤖 Ask AI
+        </button>
+
+    </div>
+
+
+    <div
+        id="ai-answer"
+        class="message"
+        style="margin-top: 18px;"
+    >
+        Ask a question to get an AI-powered answer.
+    </div>
+
+</div>
+    <!-- ========================================== -->
+    <!-- AUTOMATIC VISUALIZATIONS -->
+    <!-- ========================================== -->
+
+    <div class="section">
+
+        <h2>📊 Automatic Visualizations</h2>
+
+        <p>
+            Charts are automatically generated
+            from your uploaded dataset.
+        </p>
+
+        <div
+            class="chart-grid"
+            id="charts">
+
+            <div class="message">
+                Loading charts...
+            </div>
+
+        </div>
+
+    </div>
+
 
 </div>
 
-</div>
 
-<a href="/upload" class="btn">
+<script>
 
-Upload Dataset
 
-</a>
+// =====================================================
+// CREATE CHART FROM RECOMMENDATION
+// =====================================================
 
-</body>
+function createRecommendedChart(
+    chart,
+    recommendation
+) {
 
-</html>
+    let chartType =
+        recommendation.chart_type ||
+        recommendation.type ||
+        "bar";
+
+
+    // Normalize chart type
+
+    chartType =
+        chartType.toLowerCase();
+
+
+    if (chartType === "column") {
+        chartType = "bar";
+    }
+
+    if (chartType === "line_chart") {
+        chartType = "line";
+    }
+
+    if (chartType === "pie_chart") {
+        chartType = "pie";
+    }
+
+    if (chartType === "scatter_plot") {
+        chartType = "scatter";
+    }
+
+
+    // Get labels and values
+
+    let labels =
+        recommendation.labels ||
+        recommendation.x_values ||
+        [];
+
+    let values =
+        recommendation.values ||
+        recommendation.y_values ||
+        [];
+
+
+    // If recommendation contains chart data
+
+    if (
+        labels.length > 0 &&
+        values.length > 0
+    ) {
+
+        let plotData;
+
+
+        if (chartType === "pie") {
+
+            plotData = [
+                {
+                    labels: labels,
+                    values: values,
+                    type: "pie"
+                }
+            ];
+
+        }
+
+        else if (chartType === "scatter") {
+
+            plotData = [
+                {
+                    x: labels,
+                    y: values,
+                    type: "scatter",
+                    mode: "markers"
+                }
+            ];
+
+        }
+
+        else {
+
+            plotData = [
+                {
+                    x: labels,
+                    y: values,
+                    type: chartType
+                }
+            ];
+
+        }
+
+
+        Plotly.newPlot(
+            chart,
+            plotData,
+            {
+                margin: {
+                    t: 30,
+                    r: 20,
+                    b: 70,
+                    l: 70
+                },
+                responsive: true
+            },
+            {
+                responsive: true
+            }
+        );
+
+        return true;
+
+    }
+
+
+    return false;
+
+}
+
+
+// =====================================================
+// LOAD AI RECOMMENDATIONS
+// =====================================================
+
+function loadRecommendations(
+    recommendations,
+    existingCharts
+) {
+
+    const container =
+        document.getElementById(
+            "recommended-charts"
+        );
+
+
+    container.innerHTML = "";
+
+
+    // Check whether recommendations exist
+
+    if (
+        !recommendations ||
+        !Array.isArray(recommendations) ||
+        recommendations.length === 0
+    ) {
+
+        container.innerHTML =
+            '<div class="message">' +
+            'No AI chart recommendations available.' +
+            '</div>';
+
+        return;
+
+    }
+
+
+    recommendations.forEach(
+        function(recommendation, index) {
+
+
+            const card =
+                document.createElement("div");
+
+            card.className =
+                "recommendation-card";
+
+
+            // Title
+
+            const title =
+                document.createElement("div");
+
+            title.className =
+                "recommendation-title";
+
+            title.textContent =
+                "📊 " +
+                (
+                    recommendation.title ||
+                    "Recommended Chart"
+                );
+
+
+            // Information tags
+
+            const info =
+                document.createElement("div");
+
+            info.className =
+                "recommendation-info";
+
+
+            const chartType =
+                document.createElement("span");
+
+            chartType.className =
+                "recommendation-tag";
+
+            chartType.textContent =
+                "Chart: " +
+                (
+                    recommendation.chart_type ||
+                    recommendation.type ||
+                    "Bar"
+                );
+
+
+            const xColumn =
+                document.createElement("span");
+
+            xColumn.className =
+                "recommendation-tag";
+
+            xColumn.textContent =
+                "X: " +
+                (
+                    recommendation.x_column ||
+                    recommendation.x ||
+                    "N/A"
+                );
+
+
+            const yColumn =
+                document.createElement("span");
+
+            yColumn.className =
+                "recommendation-tag";
+
+            yColumn.textContent =
+                "Y: " +
+                (
+                    recommendation.y_column ||
+                    recommendation.y ||
+                    "N/A"
+                );
+
+
+            info.appendChild(chartType);
+            info.appendChild(xColumn);
+            info.appendChild(yColumn);
+
+
+            // Reason
+
+            const reason =
+                document.createElement("div");
+
+            reason.className =
+                "recommendation-reason";
+
+            reason.textContent =
+                recommendation.reason ||
+                "Recommended based on the detected data types.";
+
+
+            // Chart container
+
+            const chart =
+                document.createElement("div");
+
+            chart.style.width =
+                "100%";
+
+            chart.style.height =
+                "400px";
+
+
+            card.appendChild(title);
+
+            card.appendChild(info);
+
+            card.appendChild(reason);
+
+            card.appendChild(chart);
+
+            container.appendChild(card);
+
+
+            // Try to render chart if recommendation
+            // already contains labels and values
+
+            const rendered =
+                createRecommendedChart(
+                    chart,
+                    recommendation
+                );
+
+
+            // If recommendation doesn't contain
+            // actual chart data, show information
+
+            if (!rendered) {
+
+                chart.innerHTML =
+                    '<div class="message">' +
+                    'Recommendation generated successfully. ' +
+                    'Chart data will be connected next.' +
+                    '</div>';
+
+            }
+
+        }
+    );
+
+}
+
+
+// =====================================================
+// LOAD EXISTING AUTOMATIC CHARTS
+// =====================================================
+
+function loadAutomaticCharts(charts) {
+
+    const chartContainer =
+        document.getElementById(
+            "charts"
+        );
+
+    chartContainer.innerHTML = "";
+
+
+    if (
+        !charts ||
+        Object.keys(charts).length === 0
+    ) {
+
+        chartContainer.innerHTML =
+            '<div class="message">' +
+            'No chart data available.' +
+            '</div>';
+
+        return;
+
+    }
+
+
+    Object.keys(charts).forEach(
+        function(column) {
+
+
+            const chartData =
+                charts[column];
+
+
+            const card =
+                document.createElement("div");
+
+            card.className =
+                "chart-card";
+
+
+            const title =
+                document.createElement("div");
+
+            title.className =
+                "chart-title";
+
+            title.textContent =
+                "📊 " + column;
+
+
+            const chart =
+                document.createElement("div");
+
+            chart.style.width =
+                "100%";
+
+            chart.style.height =
+                "400px";
+
+
+            card.appendChild(title);
+
+            card.appendChild(chart);
+
+            chartContainer.appendChild(card);
+
+
+            // Default chart type
+
+            let chartType =
+                "bar";
+
+
+            if (
+                chartData.labels &&
+                chartData.labels.length <= 6
+            ) {
+
+                chartType =
+                    "pie";
+
+            }
+
+
+            let plotData;
+
+
+            if (chartType === "pie") {
+
+                plotData = [
+
+                    {
+
+                        labels:
+                            chartData.labels,
+
+                        values:
+                            chartData.values,
+
+                        type:
+                            "pie"
+
+                    }
+
+                ];
+
+            }
+
+            else {
+
+                plotData = [
+
+                    {
+
+                        x:
+                            chartData.labels,
+
+                        y:
+                            chartData.values,
+
+                        type:
+                            "bar"
+
+                    }
+
+                ];
+
+            }
+
+
+            Plotly.newPlot(
+                chart,
+                plotData,
+                {
+                    margin: {
+                        t: 30,
+                        r: 20,
+                        b: 60,
+                        l: 60
+                    },
+                    responsive: true
+                },
+                {
+                    responsive: true
+                }
+            );
+
+        }
+    );
+
+}
+
+
+// =====================================================
+// MAIN DASHBOARD FUNCTION
+// =====================================================
+
+async function loadDashboard() {
+
+    try {
+
+
+        const response =
+            await fetch(
+                "/api/dashboard-data"
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!data.success) {
+
+            throw new Error(
+                data.message ||
+                "Unable to load dashboard."
+            );
+
+        }
+
+
+        // ==========================================
+        // KPI VALUES
+        // ==========================================
+
+        document.getElementById(
+            "rows"
+        ).textContent =
+            data.rows;
+
+
+        document.getElementById(
+            "columns"
+        ).textContent =
+            data.columns;
+
+
+        document.getElementById(
+            "missing"
+        ).textContent =
+            data.missing_values;
+
+
+        document.getElementById(
+            "duplicates"
+        ).textContent =
+            data.duplicate_rows;
+
+
+        // ==========================================
+        // NUMERIC COLUMNS
+        // ==========================================
+
+        const numericContainer =
+            document.getElementById(
+                "numeric-columns"
+            );
+
+        numericContainer.innerHTML = "";
+
+
+        if (
+            data.numeric_columns &&
+            data.numeric_columns.length > 0
+        ) {
+
+            data.numeric_columns.forEach(
+                function(column) {
+
+                    const span =
+                        document.createElement(
+                            "span"
+                        );
+
+                    span.className =
+                        "column";
+
+                    span.textContent =
+                        column;
+
+                    numericContainer.appendChild(
+                        span
+                    );
+
+                }
+            );
+
+        }
+
+        else {
+
+            numericContainer.innerHTML =
+                '<span class="message">' +
+                'No numeric columns detected.' +
+                '</span>';
+
+        }
+
+
+        // ==========================================
+        // CATEGORICAL COLUMNS
+        // ==========================================
+
+        const categoricalContainer =
+            document.getElementById(
+                "categorical-columns"
+            );
+
+        categoricalContainer.innerHTML = "";
+
+
+        if (
+            data.categorical_columns &&
+            data.categorical_columns.length > 0
+        ) {
+
+            data.categorical_columns.forEach(
+                function(column) {
+
+                    const span =
+                        document.createElement(
+                            "span"
+                        );
+
+                    span.className =
+                        "column";
+
+                    span.textContent =
+                        column;
+
+                    categoricalContainer.appendChild(
+                        span
+                    );
+
+                }
+            );
+
+        }
+
+        else {
+
+            categoricalContainer.innerHTML =
+                '<span class="message">' +
+                'No categorical columns detected.' +
+                '</span>';
+
+        }
+
+        // ==========================================
+        // AI RECOMMENDED CHARTS
+        // ==========================================
+
+        let recommendations =
+            data.recommendations;
+
+
+        /*
+         * Sometimes the backend may return an
+         * error string instead of an array.
+         */
+
+        if (
+            typeof recommendations === "string"
+        ) {
+
+            const recommendationContainer =
+                document.getElementById(
+                    "recommended-charts"
+                );
+
+            recommendationContainer.innerHTML =
+                '<div class="message error">' +
+                recommendations +
+                '</div>';
+
+        }
+
+        else {
+
+            loadRecommendations(
+                recommendations,
+                data.charts || {}
+            );
+
+        }
+
+
+        // ==========================================
+        // EXISTING AUTOMATIC CHARTS
+        // ==========================================
+
+        loadAutomaticCharts(
+            data.charts || {}
+        );
+
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+
+        document.getElementById(
+            "charts"
+        ).innerHTML =
+            '<div class="message error">' +
+            'Unable to load dashboard: ' +
+            error.message +
+            '</div>';
+
+
+        document.getElementById(
+            "recommended-charts"
+        ).innerHTML =
+            '<div class="message error">' +
+            'Unable to load AI recommendations: ' +
+            error.message +
+            '</div>';
+
+    }
+
+}
+
+
+// =====================================================
+// ASK AI
+// =====================================================
+
+async function askAI() {
+
+    const questionInput =
+        document.getElementById("question");
+
+    const answerContainer =
+        document.getElementById("ai-answer");
+
+    const question =
+        questionInput.value.trim();
+
+
+    if (!question) {
+
+        answerContainer.className =
+            "message error";
+
+        answerContainer.textContent =
+            "Please enter a question.";
+
+        return;
+    }
+
+
+    answerContainer.className =
+        "message";
+
+    answerContainer.textContent =
+        "🤖 AnalystBuddyAI is analyzing your dataset...";
+
+
+    try {
+
+        const response =
+            await fetch("/api/ask", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    question: question
+                })
+
+            });
+
+
+        const data =
+            await response.json();
+
+
+        if (!data.success) {
+
+            throw new Error(
+                data.message ||
+                "Unable to get AI answer."
+            );
+
+        }
+
+
+        answerContainer.textContent =
+            data.answer;
+
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        answerContainer.className =
+            "message error";
+
+        answerContainer.textContent =
+            "Unable to get AI answer: " +
+            error.message;
+
+    }
+
+}
+
+
+// =====================================================
+// LOAD DASHBOARD WHEN PAGE OPENS
+// =====================================================
+
+loadDashboard();
+
+</script>

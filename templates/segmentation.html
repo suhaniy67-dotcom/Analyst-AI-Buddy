@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Customer Segmentation - AnalystBuddyAI
+    </title>
+
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h1>👥 Customer Segmentation</h1>
+
+    <p>
+        AnalystBuddyAI uses RFM analysis and
+        K-Means clustering to identify customer segments.
+    </p>
+
+
+    <!-- ================================================= -->
+    <!-- KPI CARDS -->
+    <!-- ================================================= -->
+
+    <div class="kpi-container">
+
+        <div class="kpi-card">
+
+            <h3>Total Customers</h3>
+
+            <h2 id="totalCustomers">
+                Loading...
+            </h2>
+
+        </div>
+
+
+        <div class="kpi-card">
+
+            <h3>Number of Segments</h3>
+
+            <h2 id="totalClusters">
+                Loading...
+            </h2>
+
+        </div>
+
+
+        <div class="kpi-card">
+
+            <h3>Highest Value Segment</h3>
+
+            <h2 id="highestSegment">
+                Loading...
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- SEGMENT CHART -->
+    <!-- ================================================= -->
+
+    <div class="dashboard-card">
+
+        <h2>Customers by Segment</h2>
+
+        <div id="segmentChart"
+             style="width:100%; height:450px;">
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- REVENUE CHART -->
+    <!-- ================================================= -->
+
+    <div class="dashboard-card">
+
+        <h2>Revenue by Customer Segment</h2>
+
+        <div id="revenueChart"
+             style="width:100%; height:450px;">
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- RFM SCATTER -->
+    <!-- ================================================= -->
+
+    <div class="dashboard-card">
+
+        <h2>Customer Value Distribution</h2>
+
+        <div id="rfmChart"
+             style="width:100%; height:500px;">
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- SUMMARY TABLE -->
+    <!-- ================================================= -->
+
+    <div class="dashboard-card">
+
+        <h2>Segment Summary</h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Segment</th>
+
+                    <th>Customers</th>
+
+                    <th>Avg Recency</th>
+
+                    <th>Avg Frequency</th>
+
+                    <th>Avg Monetary</th>
+
+                    <th>Total Revenue</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="segmentTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- RFM EXPLANATION -->
+    <!-- ================================================= -->
+
+    <div class="dashboard-card">
+
+        <h2>RFM Analysis</h2>
+
+        <p>
+            <strong>Recency:</strong>
+            How recently a customer purchased.
+        </p>
+
+        <p>
+            <strong>Frequency:</strong>
+            How often a customer purchased.
+        </p>
+
+        <p>
+            <strong>Monetary:</strong>
+            How much revenue a customer generated.
+        </p>
+
+    </div>
+
+
+    <br>
+
+    <a href="{{ url_for('dashboard') }}">
+        ← Back to Dashboard
+    </a>
+
+</div>
+
+
+<script>
+
+async function loadSegmentation() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/customer-segmentation"
+            );
+
+        const data =
+            await response.json();
+
+
+        if (!data.success) {
+
+            alert(
+                data.message
+            );
+
+            return;
+
+        }
+
+
+        // =================================================
+        // KPI
+        // =================================================
+
+        document.getElementById(
+            "totalCustomers"
+        ).innerText =
+            data.total_customers.toLocaleString(
+                "en-IN"
+            );
+
+
+        document.getElementById(
+            "totalClusters"
+        ).innerText =
+            data.clusters;
+
+
+        document.getElementById(
+            "highestSegment"
+        ).innerText =
+            data.summary[0].segment;
+
+
+        // =================================================
+        // SEGMENT CHART
+        // =================================================
+
+        const segmentNames =
+            data.summary.map(
+                item => item.segment
+            );
+
+
+        const customerCounts =
+            data.summary.map(
+                item => item.customers
+            );
+
+
+        Plotly.newPlot(
+
+            "segmentChart",
+
+            [{
+
+                x: segmentNames,
+
+                y: customerCounts,
+
+                type: "bar",
+
+                text: customerCounts,
+
+                textposition: "auto"
+
+            }],
+
+            {
+
+                title:
+                    "Number of Customers by Segment",
+
+                xaxis: {
+                    title:
+                        "Customer Segment"
+                },
+
+                yaxis: {
+                    title:
+                        "Number of Customers"
+                }
+
+            },
+
+            {
+                responsive: true
+            }
+
+        );
+
+
+        // =================================================
+        // REVENUE CHART
+        // =================================================
+
+        const revenue =
+            data.summary.map(
+                item => item.total_revenue
+            );
+
+
+        Plotly.newPlot(
+
+            "revenueChart",
+
+            [{
+
+                labels:
+                    segmentNames,
+
+                values:
+                    revenue,
+
+                type:
+                    "pie",
+
+                hole:
+                    0.4
+
+            }],
+
+            {
+
+                title:
+                    "Revenue Contribution by Segment"
+
+            },
+
+            {
+                responsive: true
+            }
+
+        );
+
+
+        // =================================================
+        // RFM SCATTER
+        // =================================================
+
+        const grouped = {};
+
+
+        data.customers.forEach(
+            customer => {
+
+                if (
+                    !grouped[
+                        customer.segment
+                    ]
+                ) {
+
+                    grouped[
+                        customer.segment
+                    ] = [];
+
+                }
+
+                grouped[
+                    customer.segment
+                ].push(customer);
+
+            }
+        );
+
+
+        const scatterTraces = [];
+
+
+        Object.keys(
+            grouped
+        ).forEach(
+            segment => {
+
+                const customers =
+                    grouped[segment];
+
+
+                scatterTraces.push({
+
+                    x:
+                        customers.map(
+                            item =>
+                                item.frequency
+                        ),
+
+                    y:
+                        customers.map(
+                            item =>
+                                item.monetary
+                        ),
+
+                    mode:
+                        "markers",
+
+                    type:
+                        "scatter",
+
+                    name:
+                        segment,
+
+                    text:
+                        customers.map(
+                            item =>
+                                "Customer: "
+                                + item.customer_id
+                        )
+
+                });
+
+            }
+        );
+
+
+        Plotly.newPlot(
+
+            "rfmChart",
+
+            scatterTraces,
+
+            {
+
+                title:
+                    "Customer Frequency vs Monetary Value",
+
+                xaxis: {
+
+                    title:
+                        "Purchase Frequency"
+
+                },
+
+                yaxis: {
+
+                    title:
+                        "Monetary Value"
+
+                },
+
+                hovermode:
+                    "closest"
+
+            },
+
+            {
+                responsive: true
+            }
+
+        );
+
+
+        // =================================================
+        // TABLE
+        // =================================================
+
+        const table =
+            document.getElementById(
+                "segmentTable"
+            );
+
+
+        table.innerHTML = "";
+
+
+        data.summary.forEach(
+            item => {
+
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                row.innerHTML = `
+
+                    <td>
+                        ${item.segment}
+                    </td>
+
+                    <td>
+                        ${item.customers.toLocaleString(
+                            "en-IN"
+                        )}
+                    </td>
+
+                    <td>
+                        ${item.avg_recency}
+                    </td>
+
+                    <td>
+                        ${item.avg_frequency}
+                    </td>
+
+                    <td>
+                        ₹${item.avg_monetary.toLocaleString(
+                            "en-IN"
+                        )}
+                    </td>
+
+                    <td>
+                        ₹${item.total_revenue.toLocaleString(
+                            "en-IN"
+                        )}
+                    </td>
+
+                `;
+
+
+                table.appendChild(
+                    row
+                );
+
+            }
+        );
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            error
+        );
+
+        alert(
+            "Unable to load customer segmentation."
+        );
+
+    }
+
+}
+
+
+loadSegmentation();
+
+</script>
+
+</body>
+
+</html>

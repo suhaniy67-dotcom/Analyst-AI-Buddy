@@ -1,27 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-<title>Reports</title>
+    <meta charset="UTF-8">
 
-<link rel="stylesheet"
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Reports - AnalystBuddyAI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
 
 </head>
 
 <body>
 
-<h1>Generated Reports</h1>
+<div class="container">
 
-<ul>
+    <h1>📊 AnalystBuddyAI Reports</h1>
 
-<li>Sales_Report.pdf</li>
+    <p>
+        Generate and download reports from your uploaded dataset.
+    </p>
 
-<li>Customer_Report.pdf</li>
 
-</ul>
+    <div class="report-container">
+
+        <div class="report-card">
+
+            <h2>📄 PDF Report</h2>
+
+            <p>
+                Generate a professional PDF report containing
+                dataset overview, statistics and data quality analysis.
+            </p>
+
+            <a href="{{ url_for('generate_pdf') }}"
+               class="btn">
+
+                Generate PDF
+
+            </a>
+
+        </div>
+
+
+        <div class="report-card">
+
+            <h2>📊 Excel Report</h2>
+
+            <p>
+                Download an Excel workbook containing the dataset,
+                summary, column information and statistics.
+            </p>
+
+            <a href="{{ url_for('generate_excel') }}"
+               class="btn">
+
+                Generate Excel
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <br>
+
+    <a href="{{ url_for('dashboard') }}"
+       class="btn">
+
+        ← Back to Dashboard
+
+    </a>
+
+</div>
 
 </body>
 
